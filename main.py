@@ -3,6 +3,7 @@
 # Purpose:     Label object bboxes for Grasp Detection
 # Author:      YuHsuan Yen
 # Created:     2016/12/30
+# Demo Video: https://youtu.be/dZGoISfAJmI
 #-------------------------------------------------------------------------------
 from __future__ import division
 from Tkinter import *
@@ -142,8 +143,9 @@ class LabelTool():
             os.mkdir(self.outDir)
         self.loadImage()
         print '%d images loaded from %s' %(self.total, s)
-
-    def gRCorner(self,xc,yc,x0,y0): #get the rectangle's four corners
+    
+    #get the rectangle's four corners
+    def gRCorner(self,xc,yc,x0,y0): 
         w=abs(x0-xc)*2
         h=abs(y0-yc)*2
         x2=2*xc-x0
@@ -220,7 +222,6 @@ class LabelTool():
         if self.STATE['click'] == 0:    
             self.STATE['x'], self.STATE['y'] = event.x, event.y
         
-        
         elif self.STATE['click']==1:
             xc, x0 = self.STATE['x'], event.x
             yc, y0 = self.STATE['y'], event.y
@@ -262,7 +263,6 @@ class LabelTool():
                                                             width = 2, \
                                                             outline = COLORS[len(self.bboxList) % len(COLORS)],\
                                                             fill='')
-        
         if 2 == self.STATE['click']:
             xc, xn = self.STATE['x'], event.x
             yc, yn = self.STATE['y'], event.y
