@@ -38,7 +38,8 @@ Usages
 * Likewise, click 'Prev' or press <kbd>PgUp</kbd> to reverse. 
 * Or, input the index and click 'Go' to navigate to an arbitrary image.
 * The labeling result will be saved if and only if the 'Next' button is clicked.
-![BBoxToolGIF](BBox_with_angle-Label-Tool.gif)
+
+[![https://img.youtube.com/vi/dZGoISfAJmI/0.jpg]](https://www.youtube.com/watch?v=dZGoISfAJmI)
 
 Label Format
 ------------
