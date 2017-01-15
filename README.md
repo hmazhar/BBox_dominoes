@@ -15,8 +15,8 @@ Data Organization
 
 Dependency
 ----------
--python 2.7 
--PIL-1.1.7.win32-py2.7
+- python 2.7 
+- PIL-1.1.7.win32-py2.7
 
 Startup
 -------
@@ -38,7 +38,7 @@ Usages
 * Likewise, click 'Prev' or press <kbd>PgUp</kbd> to reverse. 
 * Or, input the index and click 'Go' to navigate to an arbitrary image.
  The labeling result will be saved if and only if the 'Next' button is clicked.
-![BBoxToolGIF](http://i.imgur.com/QyoyCAd.gifv)
+![BBoxToolGIF](ToolGIF.gif)
 
 Label Format
 ------------
