@@ -43,12 +43,12 @@ Usages
 
 Label Format
 ------------
--`BBox_num`:number of bounding box
--`xc`:rectangle center `x`
--`yc`:rectangle center `y`
--`w`:`width` of the rectangle
--`h`:`height` of the rectangle
--`theta`:`angle` of the rectangle
+- `BBox_num`:number of bounding box
+- `xc`:rectangle center `x`
+- `yc`:rectangle center `y`
+- `w`:`width` of the rectangle
+- `h`:`height` of the rectangle
+- `theta`:`angle` of the rectangle
 
 ```
 BBox_num
