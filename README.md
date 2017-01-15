@@ -39,16 +39,16 @@ Usages
 * Or, input the index and click 'Go' to navigate to an arbitrary image.
 * The labeling result will be saved if and only if the 'Next' button is clicked.
 
-[![BBoxToolVideo](https://img.youtube.com/vi/dZGoISfAJmI/0.jpg)](https://www.youtube.com/watch?v=dZGoISfAJmI)
+![BBoxToolGIF](BBox_with_angle-Label-Tool.gif)
 
 Label Format
 ------------
--`BBox_num`:number of bounding box
--`xc`:rectangle center `x`
--`yc`:rectangle center `y`
--`w`:`width` of the rectangle
--`h`:`height` of the rectangle
--`theta`:`angle` of the rectangle
+- `BBox_num`:number of bounding box
+- `xc`:rectangle center `x`
+- `yc`:rectangle center `y`
+- `w`:`width` of the rectangle
+- `h`:`height` of the rectangle
+- `theta`:`angle` of the rectangle
 
 ```
 BBox_num
