@@ -40,6 +40,7 @@ Usages
 * The labeling result will be saved if and only if the 'Next' button is clicked.
 
 ![BBoxToolGIF](BBox_with_angle-Label-Tool.gif)
+>[Demo Video](https://youtu.be/dZGoISfAJmI)
 
 Label Format
 ------------
