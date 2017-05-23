@@ -61,4 +61,4 @@ xc yc w h theta
 
 Reference
 ---------
-This original Tool is fork from [puzzledqs/BBox-Label-Tool](https://github.com/puzzledqs/BBox-Label-Tool)
+This original Tool is forked from [puzzledqs/BBox-Label-Tool](https://github.com/puzzledqs/BBox-Label-Tool)
