@@ -96,9 +96,9 @@ class LabelTool():
 - Press the load button to start.\n\
 - Then for each Domino click on three of its corners.\n\
 - A dialog box will appear after third point.\n\
-- In this box enter the two numbers associated with the domino.\n\
-- no dots mean 0. \n\
+- In this box enter the two numbers associated with the domino, no dots mean 0.\n\
 - Example input for this box would look like "1,3" without quotes.\n\
+- To remove a bad box, click on the associated line below and then click delete to delete that box and try again \n\
 - Press Next to save labels to "Labels" folder and load next image')
         self.help.grid(row = 1, column = 2,  sticky = W+N)
         self.listbox = Listbox(self.frame, width = 28, height = 12)
