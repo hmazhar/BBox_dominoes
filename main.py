@@ -1,13 +1,23 @@
 #-------------------------------------------------------------------------------
-# Name:        Object bounding box label tool (with angle)
-# Purpose:     Label object bboxes for Grasp Detection
+# Name:        Three Point Rectangle
+# Purpose:     Label boxes and metadata
 # Author:      YuHsuan Yen
 # Created:     2016/12/30
 # Demo Video: https://youtu.be/dZGoISfAJmI
 #-------------------------------------------------------------------------------
+from __future__ import print_function
 from __future__ import division
-from Tkinter import *
-import tkMessageBox
+import sys
+
+if sys.version_info[:2] < (3, 0):
+    # for Python2
+    from Tkinter import *   ## notice capitalized T in Tkinter
+    import tkSimpleDialog as simpledialog
+else: 
+    # for Python3
+    from tkinter import *   ## notice lowercase 't' in tkinter here
+    import tkinter.simpledialog as simpledialog
+
 from PIL import Image, ImageTk
 import os
 import glob
@@ -16,7 +26,7 @@ import math as m
 import cmath as cm
 import numpy as np
 # colors for the bboxes
-COLORS = ['red', 'blue', 'yellow', 'pink', 'cyan', 'green', 'black']
+COLORS = ['red', 'blue', 'gold', 'pink', 'cyan', 'green', 'black','orange','maroon','seashell3','plum1','dark green','tomato','blanched almond']
 # image sizes for the examples
 SIZE = 480, 640
 
@@ -24,7 +34,7 @@ class LabelTool():
     def __init__(self, master):
         # set up the main frame
         self.parent = master
-        self.parent.title("LabelTool")
+        self.parent.title("Domino Label Tool")
         self.frame = Frame(self.parent)
         self.frame.pack(fill=BOTH, expand=1)
         self.parent.resizable(width = FALSE, height = FALSE)
@@ -45,22 +55,28 @@ class LabelTool():
         # initialize mouse state
         self.STATE = {}
         self.STATE['click'] = 0
-        self.STATE['x'], self.STATE['y'] = 0, 0
-        self.STATE['gR'] = []
-        self.STATE['gR_deg'] = 0
+        self.STATE['p1'] = [0, 0]
+        self.STATE['p2'] = [0, 0]
+        self.STATE['p3'] = [0, 0]
+        self.STATE['p4'] = [0, 0]
+        self.STATE['angle'] = 0
         # reference to bbox
         self.bboxIdList = []
         self.bboxId = None
         self.bboxList = []
         self.hl = None
         self.vl = None
+        # scale image size down
+        self.invscale = 2
 
         # ----------------- GUI stuff ---------------------
         # dir entry & load
-        self.label = Label(self.frame, text = "Image Dir:")
-        self.label.grid(row = 0, column = 0, sticky = E)
-        self.entry = Entry(self.frame)
-        self.entry.grid(row = 0, column = 1, sticky = W+E)
+        #self.label = Label(self.frame, text = "Image Dir:")
+        #self.label.grid(row = 0, column = 0, sticky = E)
+        #self.entry = Entry(self.frame)
+        #self.entry.grid(row = 0, column = 1, sticky = W+E)
+        #self.entry.delete(0, END)
+        #self.entry.insert(0, "Image Dir:")
         self.ldBtn = Button(self.frame, text = "Load", command = self.loadDir)
         self.ldBtn.grid(row = 0, column = 2, sticky = W+E)
 
@@ -118,48 +134,44 @@ class LabelTool():
         self.frame.columnconfigure(1, weight = 1)
         self.frame.rowconfigure(4, weight = 1)
 
+    def vsub(self,a,b):
+        return (a[0]-b[0],a[1]-b[1])
+
+    def vdot(self,a,b):
+        return a[0]*b[0]+a[1]*b[1]
 
     def loadDir(self, dbg = False):
-        if not dbg:
-            s = self.entry.get()
-            self.parent.focus()
-            self.category = str(s)
-        else:
-            s = r'D:\workspace\python\labelGUI'
+        # if not dbg:
+        #     s = self.entry.get()
+        #     self.parent.focus()
+        #     self.category = str(s)
+        # else:
+        #     s = r'D:\workspace\python\labelGUI'
 
         # get image list
-        self.imageDir = os.path.join(r'./Images', self.category)
-        self.imageList = glob.glob(os.path.join(self.imageDir, '*.png'))
+        self.imageDir = os.path.join(r'./Images','')
+        self.imageList = glob.glob(os.path.join(self.imageDir, '*.jpg'))
         if len(self.imageList) == 0:
-            print 'No .png images found in the specified dir!'
+            print ('No .jpg images found in the specified dir!')
             return
         # default to the 1st image in the collection
         self.cur = 1
         self.total = len(self.imageList)
 
          # set up output dir
-        self.outDir = os.path.join(r'./Labels', self.category)
+        self.outDir = os.path.join(r'./Labels', '')
         if not os.path.exists(self.outDir):
             os.mkdir(self.outDir)
         self.loadImage()
-        print '%d images loaded from %s' %(self.total, s)
+        print('%d images loaded from %s' %(self.total, self.imageDir))
     
-    #get the rectangle's four corners
-    def gRCorner(self,xc,yc,x0,y0): 
-        w=abs(x0-xc)*2
-        h=abs(y0-yc)*2
-        x2=2*xc-x0
-        y2=2*yc-y0
-        x0,x2=max(x0,x2),min(x0,x2)
-        y0,y2=max(y0,y2),min(y0,y2)
-        corner_x=x0,x0,x2,x2
-        corner_y=y0,y2,y2,y0
-        return zip(corner_x, corner_y), w, h
-
     def loadImage(self):
         # load image
         imagepath = self.imageList[self.cur - 1]
         self.img = Image.open(imagepath)
+        #print(self.img.size)
+        self.img =self.img.resize((int(self.img.size[0]/self.invscale), int(self.img.size[1]/self.invscale)), Image.ANTIALIAS)
+        #print(self.img.size)
         self.tkimg = ImageTk.PhotoImage(self.img)
         self.mainPanel.config(width = max(self.tkimg.width(), 400), height = max(self.tkimg.height(), 400))
         self.mainPanel.create_image(0, 0, image = self.tkimg, anchor=NW)
@@ -170,80 +182,90 @@ class LabelTool():
         self.imagename = os.path.split(imagepath)[-1].split('.')[0]
         labelname = self.imagename + '.txt'
         self.labelfilename = os.path.join(self.outDir, labelname)
-        bbox_cnt = 0
-        if os.path.exists(self.labelfilename):
-            with open(self.labelfilename) as f:
-                for (i, line) in enumerate(f):
-                    if i == 0:
-                        bbox_cnt = int(line.strip())
-                        continue
-                    tmp = [float(t.strip()) for t in line.split()]
-                    # print tmp
-                    self.bboxList.append(tuple(tmp))
-                    xc,yc=tmp[0], tmp[1]
-                    x0,y0=xc+tmp[2]/2,yc+tmp[3]/2
-                    poly_tmp=list(self.gRCorner(xc,yc,x0,y0))
-                    tmpId = self.mainPanel.create_polygon(poly_tmp[0], \
-                                                            width = 2, \
-                                                            outline = COLORS[(len(self.bboxList)-1) % len(COLORS)],\
-                                                            fill='')
-                    angle = cm.exp(m.radians(tmp[4])*1j)
-                    offset = complex(xc, yc)
-                    newxy=[]
-                    for x, y in poly_tmp[0]:
-                        v = angle * (complex(x, y) - offset) + offset
-                        newxy.append(v.real)
-                        newxy.append(v.imag)
-                    # print np.angle(angle,deg=True)
-                    self.mainPanel.coords(tmpId, *newxy)
+        #bbox_cnt = 0
+        # if os.path.exists(self.labelfilename):
+        #     with open(self.labelfilename) as f:
+        #         for (i, line) in enumerate(f):
+        #             if i == 0:
+        #                 bbox_cnt = int(line.strip())
+        #                 continue
+        #             tmp = [float(t.strip()) for t in line.split()]
+        #             # print tmp
+        #             self.bboxList.append(tuple(tmp))
+        #             xc,yc=tmp[0], tmp[1]
+        #             x0,y0=xc+tmp[2]/2,yc+tmp[3]/2
+        #             poly_tmp=list(self.gRCorner(xc,yc,x0,y0))
+        #             tmpId = self.mainPanel.create_polygon(poly_tmp[0], \
+        #                                                     width = 2, \
+        #                                                     outline = COLORS[(len(self.bboxList)-1) % len(COLORS)],\
+        #                                                     fill='')
+        #             angle = cm.exp(m.radians(tmp[4])*1j)
+        #             offset = complex(xc, yc)
+        #             newxy=[]
+        #             for x, y in poly_tmp[0]:
+        #                 v = angle * (complex(x, y) - offset) + offset
+        #                 newxy.append(v.real)
+        #                 newxy.append(v.imag)
+        #             # print np.angle(angle,deg=True)
+        #             self.mainPanel.coords(tmpId, *newxy)
 
-                    self.bboxIdList.append(tmpId)
-                    self.listbox.insert(END, '(%d, %d), w:%d, h:%d, deg:%.2f' %(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4]))
-                    self.listbox.itemconfig(len(self.bboxIdList) - 1, fg = COLORS[(len(self.bboxIdList) - 1) % len(COLORS)])
+        #             self.bboxIdList.append(tmpId)
+        #             self.listbox.insert(END, '(%d, %d), w:%d, h:%d, deg:%.2f' %(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4]))
+        #             self.listbox.itemconfig(len(self.bboxIdList) - 1, fg = COLORS[(len(self.bboxIdList) - 1) % len(COLORS)])
 
     def saveImage(self):
         with open(self.labelfilename, 'w') as f:
             f.write('%d\n' %len(self.bboxList))
             for bbox in self.bboxList:
                 f.write(' '.join(map(str, bbox)) + '\n')
-        print 'Image No. %d saved' %(self.cur)
-
-    def complex_unit(self,event):
-        dx = self.mainPanel.canvasx(event.x) - self.STATE['x']
-        dy = self.mainPanel.canvasy(event.y) - self.STATE['y']
-        try:
-            return complex(dx, dy) / abs(complex(dx, dy))
-        except ZeroDivisionError:
-            return 0.0 # cannot determine angle
+        print (self.cur)
 
     def mouseClick(self, event):
-        # print "click state:{}".format(self.STATE['click']) 
+        print ("click state:{}".format(self.STATE['click']) )
         
         if self.STATE['click'] == 0:    
-            self.STATE['x'], self.STATE['y'] = event.x, event.y
+            self.STATE['p1']= [event.x, event.y]
         
         elif self.STATE['click']==1:
-            xc, x0 = self.STATE['x'], event.x
-            yc, y0 = self.STATE['y'], event.y
-            self.STATE['gR'] = list(self.gRCorner(xc,yc,x0,y0))
-            # print "Rectangle corner:",self.STATE['gR'][0]
-            global start
-            start =self.complex_unit(event)
-        
+            self.STATE['p2']= [event.x, event.y]
         elif self.STATE['click']==2:
-            self.bboxList.append((self.STATE['x'], self.STATE['y'], self.STATE['gR'][1], self.STATE['gR'][2],self.STATE['gR_deg']))
+            self.STATE['p3'] = [event.x, event.y]
+            var = simpledialog.askstring("Domino Labels", "Enter Data")
+            if var=="":
+                var=NONE
+            #self.popup_bonus()
+            #self.frame.wait_window(self.popup)
+            self.bboxList.append([
+                int(self.STATE['p1'][0]* self.invscale), int(self.STATE['p1'][1]* self.invscale),
+                int(self.STATE['p2'][0]* self.invscale), int(self.STATE['p2'][1]* self.invscale),
+                int(self.STATE['p3'][0]* self.invscale), int(self.STATE['p3'][1]* self.invscale),
+                int(self.STATE['p4'][0]* self.invscale), int(self.STATE['p4'][1]* self.invscale),
+                self.STATE['angle'], var])
             self.bboxIdList.append(self.bboxId)
             self.bboxId = None
-            self.listbox.insert(END, '(%d, %d), w:%d, h:%d, deg:%.2f' %(self.STATE['x'],self.STATE['y'], \
-                                                                        self.STATE['gR'][1],self.STATE['gR'][2],\
-                                                                        self.STATE['gR_deg']))
+            self.listbox.insert(END, '[%s], deg:%.2f' %(\
+                var,\
+                self.STATE['angle']))
             self.listbox.itemconfig(len(self.bboxIdList) - 1, fg = COLORS[(len(self.bboxIdList) - 1) % len(COLORS)])
+            
+
             self.STATE['click'] = -1
         
         self.STATE['click'] = 1 + self.STATE['click']
+    def proj(self, start, angle, point):
+        v = [100*np.cos(np.deg2rad(angle))+ start[0], 100*np.sin(np.deg2rad(angle))+ start[1]]
+
+        p1 = self.vsub(v,start)
+        p2 = self.vsub(point,start)
+        dp = self.vdot(p1,p2)
+        lp1 = np.sqrt(self.vdot(p1,p1))
+        lp2 = np.sqrt(self.vdot(p2,p2))
+        c = dp/(lp1*lp2)
+        dpl = c * lp2
+        return [start[0] + (dpl * p1[0])/ lp1, start[1] + (dpl * p1[1])/ lp1]
 
     def mouseMove(self, event):
-        self.disp.config(text = 'x: %d, y: %d' %(event.x, event.y))
+        self.disp.config(text = 'x: %d, y: %d' %(event.x*self.invscale, event.y*self.invscale))
         if self.tkimg: #mouse tracking
             if self.hl:
                 self.mainPanel.delete(self.hl)
@@ -255,29 +277,20 @@ class LabelTool():
         if 1 == self.STATE['click']:
             if self.bboxId:
                 self.mainPanel.delete(self.bboxId)
-            xc, x0 = self.STATE['x'], event.x
-            yc, y0 = self.STATE['y'], event.y
-            self.STATE['gR'] = list(self.gRCorner(xc,yc,x0,y0))
-            # print self.STATE['gR']
-            self.bboxId = self.mainPanel.create_polygon(self.STATE['gR'][0], \
-                                                            width = 2, \
-                                                            outline = COLORS[len(self.bboxList) % len(COLORS)],\
-                                                            fill='')
+            P = [self.STATE['p1'][0], self.STATE['p1'][1],event.x,event.y]
+            self.STATE['angle'] = np.rad2deg(np.arctan2(P[3]-P[1], P[2] - P[0]))
+            #print(self.STATE['angle'])
+            self.bboxId = self.mainPanel.create_polygon(P, width = 2, outline = COLORS[len(self.bboxList) % len(COLORS)],fill='')
         if 2 == self.STATE['click']:
-            xc, xn = self.STATE['x'], event.x
-            yc, yn = self.STATE['y'], event.y
-            global start
-            angle = self.complex_unit(event) / start
-            offset = complex(xc, yc)
-            newxy=[]
-            for x, y in self.STATE['gR'][0]:
-                v = angle * (complex(x, y) - offset) + offset
-                newxy.append(v.real)
-                newxy.append(v.imag)
-            # print np.angle(angle,deg=True)
-            self.STATE['gR_deg'] = np.angle(angle,deg=True)
-            self.mainPanel.coords(self.bboxId, *newxy)
-
+            if self.bboxId:
+                self.mainPanel.delete(self.bboxId)
+            self.STATE['p3'] = self.proj(self.STATE['p2'],self.STATE['angle'] + 90,  [event.x,event.y])
+            self.STATE['p4'] = self.proj(self.STATE['p1'],self.STATE['angle'] + 90,  [event.x,event.y])
+            P = [self.STATE['p1'][0], self.STATE['p1'][1],\
+                 self.STATE['p2'][0], self.STATE['p2'][1],\
+                 self.STATE['p3'][0], self.STATE['p3'][1],\
+                 self.STATE['p4'][0], self.STATE['p4'][1]]
+            self.bboxId = self.mainPanel.create_polygon(P, width = 2, outline = COLORS[len(self.bboxList) % len(COLORS)],fill='')
 
     def cancelBBox(self, event):
         if 1 == self.STATE['click']:
