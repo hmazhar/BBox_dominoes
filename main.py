@@ -92,14 +92,22 @@ class LabelTool():
         self.mainPanel.grid(row = 1, column = 1, rowspan = 4, sticky = W+N)
 
         # showing bbox info & delete bbox
-        self.lb1 = Label(self.frame, text = 'Bounding boxes:')
-        self.lb1.grid(row = 1, column = 2,  sticky = W+N)
+        self.help = Label(self.frame, wraplength = 200, justify=LEFT, text = '\
+- Press the load button to start.\n\
+- Then for each Domino click on three of its corners.\n\
+- A dialog box will appear after third point.\n\
+- In this box enter the two numbers associated with the domino.\n\
+- no dots mean 0. \n\
+- Example input for this box would look like "1,3" without quotes.\n\
+- Press Next to save labels to "Labels" folder and load next image')
+        self.help.grid(row = 1, column = 2,  sticky = W+N)
         self.listbox = Listbox(self.frame, width = 28, height = 12)
         self.listbox.grid(row = 2, column = 2, sticky = N)
         self.btnDel = Button(self.frame, text = 'Delete', command = self.delBBox)
         self.btnDel.grid(row = 3, column = 2, sticky = W+E+N)
         self.btnClear = Button(self.frame, text = 'ClearAll', command = self.clearBBox)
         self.btnClear.grid(row = 4, column = 2, sticky = W+E+N)
+
 
         # control panel for image navigation
         self.ctrPanel = Frame(self.frame)
