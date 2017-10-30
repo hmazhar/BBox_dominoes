@@ -1,6 +1,8 @@
 Three point bounding box tool with custom data
-based on https://github.com/YenYuHsuan/BBox_with_angle-Label-Tool.git
 ===============
+Based on 
+https://github.com/puzzledqs/BBox-Label-Tool
+https://github.com/YenYuHsuan/BBox_with_angle-Label-Tool.git
 
 Installation instructions
 Linux:
