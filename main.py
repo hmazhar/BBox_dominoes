@@ -190,36 +190,35 @@ class LabelTool():
         self.imagename = os.path.split(imagepath)[-1].split('.')[0]
         labelname = self.imagename + '.txt'
         self.labelfilename = os.path.join(self.outDir, labelname)
-        #bbox_cnt = 0
-        # if os.path.exists(self.labelfilename):
-        #     with open(self.labelfilename) as f:
-        #         for (i, line) in enumerate(f):
-        #             if i == 0:
-        #                 bbox_cnt = int(line.strip())
-        #                 continue
-        #             tmp = [float(t.strip()) for t in line.split()]
-        #             # print tmp
-        #             self.bboxList.append(tuple(tmp))
-        #             xc,yc=tmp[0], tmp[1]
-        #             x0,y0=xc+tmp[2]/2,yc+tmp[3]/2
-        #             poly_tmp=list(self.gRCorner(xc,yc,x0,y0))
-        #             tmpId = self.mainPanel.create_polygon(poly_tmp[0], \
-        #                                                     width = 2, \
-        #                                                     outline = COLORS[(len(self.bboxList)-1) % len(COLORS)],\
-        #                                                     fill='')
-        #             angle = cm.exp(m.radians(tmp[4])*1j)
-        #             offset = complex(xc, yc)
-        #             newxy=[]
-        #             for x, y in poly_tmp[0]:
-        #                 v = angle * (complex(x, y) - offset) + offset
-        #                 newxy.append(v.real)
-        #                 newxy.append(v.imag)
-        #             # print np.angle(angle,deg=True)
-        #             self.mainPanel.coords(tmpId, *newxy)
-
-        #             self.bboxIdList.append(tmpId)
-        #             self.listbox.insert(END, '(%d, %d), w:%d, h:%d, deg:%.2f' %(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4]))
-        #             self.listbox.itemconfig(len(self.bboxIdList) - 1, fg = COLORS[(len(self.bboxIdList) - 1) % len(COLORS)])
+        bbox_cnt = 0
+        if os.path.exists(self.labelfilename):
+            with open(self.labelfilename) as f:
+                for (i, line) in enumerate(f):
+                    if i == 0:
+                        bbox_cnt = int(line.strip())
+                        print ("Loaded", bbox_cnt)
+                        continue
+                    tmp = [t.strip() for t in line.split()]
+                    #print (tmp)
+                    P = [float(tmp[0])/self.invscale, float(tmp[1])/self.invscale,\
+                         float(tmp[2])/self.invscale, float(tmp[3])/self.invscale,\
+                         float(tmp[4])/self.invscale, float(tmp[5])/self.invscale,\
+                         float(tmp[6])/self.invscale, float(tmp[7])/self.invscale]
+                    #print(P)
+                    self.bboxList.append([
+                        int(tmp[0]), int(tmp[1]),
+                        int(tmp[2]), int(tmp[3]),
+                        int(tmp[4]), int(tmp[5]),
+                        int(tmp[6]), int(tmp[7]),
+                        float(tmp[8]), tmp[9]])
+                    
+                    tmpId = self.mainPanel.create_polygon(P, \
+                                                            width = 2, \
+                                                            outline = COLORS[(len(self.bboxList)-1) % len(COLORS)],\
+                                                            fill='')
+                    self.bboxIdList.append(tmpId)
+                    self.listbox.insert(END, '[%s], deg:%.2f' %(tmp[9],float(tmp[8])))
+                    self.listbox.itemconfig(len(self.bboxIdList) - 1, fg = COLORS[(len(self.bboxIdList) - 1) % len(COLORS)])
 
     def saveImage(self):
         with open(self.labelfilename, 'w') as f:
@@ -237,7 +236,7 @@ class LabelTool():
         elif self.STATE['click']==1:
             self.STATE['p2']= [event.x, event.y]
         elif self.STATE['click']==2:
-            self.STATE['p3'] = [event.x, event.y]
+            #self.STATE['p3'] = [event.x, event.y]
             var = simpledialog.askstring("Domino Labels", "Enter Data")
             if var=="":
                 var=NONE
@@ -251,9 +250,7 @@ class LabelTool():
                 self.STATE['angle'], var])
             self.bboxIdList.append(self.bboxId)
             self.bboxId = None
-            self.listbox.insert(END, '[%s], deg:%.2f' %(\
-                var,\
-                self.STATE['angle']))
+            self.listbox.insert(END, '[%s], deg:%.2f' %(var,self.STATE['angle']))
             self.listbox.itemconfig(len(self.bboxIdList) - 1, fg = COLORS[(len(self.bboxIdList) - 1) % len(COLORS)])
             
 
