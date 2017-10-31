@@ -15,7 +15,7 @@ sudo pip install Pillow
 
 Windows:
 
-Install anaconda https://www.anaconda.com/download/ either 3.6 or 2.7
+Install anaconda https://repo.continuum.io/archive/Anaconda3-5.0.1-Windows-x86_64.exe
 
 Open up an anaconda prompt from start menu and go to path with main.py
 
@@ -25,7 +25,7 @@ Open up an anaconda prompt from start menu and go to path with main.py
 
 To Run:
 
-Create a folder called Images at the same level as main.py, put impages inside of folder
+Create a folder called Images at the same level as main.py, put images inside of folder
 
 Then Run:
 
